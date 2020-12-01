@@ -6,12 +6,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TestTopologyDiscovery {
 
@@ -42,10 +43,11 @@ public class TestTopologyDiscovery {
                 .limit(1000)
                 .collect(Collectors.toList());
 
-
         discoveryService.consume(events);
+        Set<Relation> parsedRelations = discoveryService.getRelations();
+        Set<Relation> relationSet = this.relations.stream().collect(Collectors.toSet());
 
-        assertEquals(relations, discoveryService.getRelations());
+        assertEquals(relationSet, parsedRelations);
     }
 
     @Test
@@ -63,11 +65,30 @@ public class TestTopologyDiscovery {
     @Test
     public void testIpsByHighestOutboundTraffic() {
         //simulate events
-        eventStream
-                .limit(1000)
-                .collect(Collectors.toList());
+//        List<Event> events = eventStream
+//                .limit(1000)
+//                .collect(Collectors.toList());
 
         /** please implement and test your code to return (efficiently) the *IPS* highest amount of outbound traffic */
-        assertTrue(false);
+        /** OG: when two or more ip has the same number of highest traffic it will choose one of them randomly */
+        discoveryService.consume(initTestEventList());
+        String highestTrafficIp = discoveryService.findHighestTrafficIp();
+        assertEquals("4", highestTrafficIp);
+    }
+
+    private List<Event> initTestEventList() {
+        List<Event> eventList = new ArrayList<>();
+        eventList.add(new Event("3", null, 0l, 0l));
+        eventList.add(new Event("3", null, 0l, 0l));
+        eventList.add(new Event("3", null, 0l, 0l));
+
+        eventList.add(new Event("4", null, 0l, 0l));
+        eventList.add(new Event("4", null, 0l, 0l));
+        eventList.add(new Event("4", null, 0l, 0l));
+        eventList.add(new Event("4", null, 0l, 0l));
+
+        eventList.add(new Event("1", null, 0l, 0l));
+
+        return eventList;
     }
 }
